@@ -11,5 +11,8 @@
     "url": "git+https://github.com/CrisH2307/fragments.git"
   },
   "author": "CRISHUYNH",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "prettier": "3.3.3"
+  }
 }
