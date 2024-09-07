@@ -17,8 +17,8 @@
   "author": "CRISHUYNH",
   "license": "UNLICENSED",
   "devDependencies": {
-    "@eslint/js": "^9.9.1",
-    "eslint": "^9.9.1",
+    "@eslint/js": "^9.10.0",
+    "eslint": "^9.10.0",
     "globals": "^15.9.0",
     "nodemon": "^3.1.4",
     "prettier": "3.3.3"
@@ -32,6 +32,7 @@
     "pino": "^9.4.0",
     "pino-http": "^10.3.0",
     "pino-pretty": "^11.2.2",
-    "stoppable": "^1.1.0"
+    "stoppable": "^1.1.0",
+    "tough-cookie": "^4.1.4"
   }
 }
