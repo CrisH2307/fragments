@@ -12,7 +12,6 @@ if (options.level === 'debug') {
       colorize: true,
     },
   };
-  // console.log('Environment Variables:', process.env.LOG_LEVEL);   // Debug Line
 }
 
 // Create and export a Pino Logger instance:

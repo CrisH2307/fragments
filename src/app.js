@@ -45,6 +45,7 @@ app.get('/', (req, res) => {
     githubUrl: 'https://github.com/CrisH2307/fragments',
     version,
   });
+  logger.debug('Environment Variables:', process.env.LOG_LEVEL); // Debug Line
 });
 
 // Add 404 middleware to handle any requests for resources that can't be found
