@@ -12,6 +12,7 @@ const authenticate = require('./auth');
 //const { author, version } = require('../package.json');
 
 const logger = require('./logger');
+const { createErrorResponse } = require('./response');
 const pino = require('pino-http')({
   // Use our default logger instance, which is already configured
   logger,
@@ -41,13 +42,16 @@ app.use('/', require('./routes'));
 
 // Add 404 middleware to handle any requests for resources that can't be found
 app.use((req, res) => {
-  res.status(404).json({
-    status: 'error',
-    error: {
-      message: 'not found',
-      code: 404,
-    },
-  });
+  // res.status(404).json({
+  //   status: 'error',
+  //   error: {
+  //     message: 'not found',
+  //     code: 404,
+  //   },
+  // });
+  const status = 404;
+  const message = 'not found';
+  res.status(status).json(createErrorResponse(status, message));
 });
 
 // Add error-handling middleware to deal with anything else
