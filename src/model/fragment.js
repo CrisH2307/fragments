@@ -142,30 +142,28 @@ class Fragment {
    * @returns {Array<string>} list of supported mime types
    */
   get formats() {
-    if (this.type == 'text/plain' || this.type == 'text/plain; charset=utf-8') {
-      return ['text/plain'];
-    } else if (this.type == 'text/markdown') {
-      return ['text/markdown', 'text/html', 'text/plain'];
-    } else if (this.type == 'text/html') {
-      return ['text/html', 'text/plain'];
-    } else if (this.type == 'application/json' || this.type == 'application/json; charset=utf-8') {
-      return ['text/plain', 'application/json'];
-    } else if (
-      this.type == 'image/png' ||
-      this.type == 'image/jpeg' ||
-      this.type == 'image/webp' ||
-      this.type == 'image/gif'
-    ) {
-      return ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-    }
-    return [];
+    const supportedTypes = {
+      'text/plain': ['text/plain'],
+      'text/plain; charset=utf-8': ['text/plain'],
+      'text/markdown': ['text/markdown', 'text/html', 'text/plain'],
+      'text/html': ['text/html', 'text/plain'],
+      'application/json': ['text/plain', 'application/json'],
+      'application/json; charset=utf-8': ['text/plain', 'application/json'],
+      'image/png': ['image/png', 'image/jpeg', 'image/webp', 'image/gif'],
+      'image/jpeg': ['image/png', 'image/jpeg', 'image/webp', 'image/gif'],
+      'image/webp': ['image/png', 'image/jpeg', 'image/webp', 'image/gif'],
+      'image/gif': ['image/png', 'image/jpeg', 'image/webp', 'image/gif'],
+    };
 
-    // for (const supportedType of this.type) {
-    //   if (this.type.startsWith(supportedType)) {
-    //     return [];
-    //   }
-    // }
-    //Todo; LATER
+    // Using a for loop to check supported types
+    for (const [type, formats] of Object.entries(supportedTypes)) {
+      if (this.type === type) {
+        return formats; // Return the corresponding formats for the supported type
+      }
+    }
+
+    logger.warn('Unsupported Content-Type:', this.type);
+    return []; // Return an empty array for unsupported types
   }
 
   /**
