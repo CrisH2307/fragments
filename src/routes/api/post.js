@@ -21,7 +21,8 @@ module.exports = async (req, res) => {
       const successResponse = createSuccessResponse(fragment);
       res.status(201).json(successResponse);
     } catch (err) {
-      logger.error('Error creating fragment:', err);
+      console.log(err);
+      logger.error('Error creating fragment:', err.message);
       res
         .status(500)
         .json(createErrorResponse(500, 'error catched while creating fragment from post'));
