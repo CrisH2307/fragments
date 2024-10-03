@@ -20,10 +20,11 @@ module.exports = async (req, res) => {
       res.setHeader('Location', `${API_URL}/v1/fragments/${fragment.id}`);
       const successResponse = createSuccessResponse(fragment);
       res.status(201).json(successResponse);
-    } catch {
+    } catch (err) {
+      logger.error('Error creating fragment:', err);
       res
-        .status(420)
-        .json(createErrorResponse(420, 'error catched while creating fragment from post'));
+        .status(500)
+        .json(createErrorResponse(500, 'error catched while creating fragment from post'));
     }
   } else {
     logger.debug(req.body);
