@@ -8,7 +8,9 @@ const { Fragment } = require('../../model/fragment');
 
 // Use https://www.npmjs.com/package/content-type to create/parse Content-Type headers
 const contentType = require('content-type');
-const { getAllFragment, getId, getInfo } = require('./get');
+const getAllFragment = require('./get');
+const getId = require('./getid');
+const getInfo = require('./getInfo');
 
 // Create a router on which to mount our API endpoints
 const router = express.Router();

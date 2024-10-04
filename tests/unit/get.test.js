@@ -20,6 +20,14 @@ describe('GET /v1/fragments', () => {
     expect(res.body.status).toBe('ok');
     expect(Array.isArray(res.body.fragments)).toBe(true);
   });
+
+  // Test retrieval of non-existent fragment
+  test('returns 404 for non-existent fragment', async () => {
+    const res = await request(app)
+      .get('/v1/fragments/c07bf87b-bfdd-4cb3-8b71-b21c77e73a000')
+      .auth('user1@email.com', 'password1');
+    expect(res.statusCode).toBe(404);
+  });
 });
 describe('POST /v1/fragments', () => {
   // Test for unauthenticated requests
