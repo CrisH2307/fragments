@@ -1,8 +1,8 @@
 const { createSuccessResponse, createErrorResponse } = require('../../../src/response');
 const logger = require('../../logger');
 const { Fragment } = require('../../model/fragment');
-
 require('dotenv').config();
+const API_URL = process.env.API_URL;
 
 module.exports = async (req, res) => {
   if (Buffer.isBuffer(req.body)) {
@@ -14,10 +14,16 @@ module.exports = async (req, res) => {
       });
       await fragment.save();
       await fragment.setData(req.body);
-      if (!process.env.API_URL) {
+
+      if (!API_URL) {
+        logger.error('API_URL is not set in the environment variables');
         throw new Error('API_URL is not set');
       }
-      res.setHeader('Location', `${process.env.API_URL}/v1/fragments/${fragment.id}`);
+
+      // Log fragment for debugging purposes
+      console.log('Fragment created:', fragment);
+
+      res.setHeader('Location', `${API_URL}/v1/fragments/${fragment.id}`);
       const successResponse = createSuccessResponse(fragment);
       res.status(201).json(successResponse);
     } catch (err) {
@@ -28,7 +34,7 @@ module.exports = async (req, res) => {
         .json(createErrorResponse(500, 'error catched while creating fragment from post'));
     }
   } else {
-    logger.debug(req.body);
+    logger.debug('Received invalid body type:', typeof req.body);
     res.status(415).json(createErrorResponse(415, 'Not a valid type'));
   }
 };
