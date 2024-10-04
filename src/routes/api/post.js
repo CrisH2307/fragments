@@ -2,7 +2,7 @@ const { createSuccessResponse, createErrorResponse } = require('../../../src/res
 const logger = require('../../logger');
 const { Fragment } = require('../../model/fragment');
 require('dotenv').config();
-const API_URL = process.env.API_URL;
+const API_URL = process.env.API_URL || 'http://localhost:8080';
 
 module.exports = async (req, res) => {
   if (Buffer.isBuffer(req.body)) {
