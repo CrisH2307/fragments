@@ -1,8 +1,8 @@
 const { createSuccessResponse, createErrorResponse } = require('../../../src/response');
 const logger = require('../../logger');
 const { Fragment } = require('../../model/fragment');
+
 require('dotenv').config();
-const API_URL = process.env.API_URL;
 
 module.exports = async (req, res) => {
   if (Buffer.isBuffer(req.body)) {
@@ -14,10 +14,10 @@ module.exports = async (req, res) => {
       });
       await fragment.save();
       await fragment.setData(req.body);
-      if (!API_URL) {
+      if (!process.env.API_URL) {
         throw new Error('API_URL is not set');
       }
-      res.setHeader('Location', `${API_URL}/v1/fragments/${fragment.id}`);
+      res.setHeader('Location', `${process.env.API_URL}/v1/fragments/${fragment.id}`);
       const successResponse = createSuccessResponse(fragment);
       res.status(201).json(successResponse);
     } catch (err) {

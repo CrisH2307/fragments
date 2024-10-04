@@ -42,6 +42,7 @@ describe('POST /v1/fragments', () => {
       .send('This is a fragment')
       .set('Content-Type', 'text/plain');
 
+    expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('id');
     expect(res.body).toHaveProperty('created');
     expect(res.body).toHaveProperty('type', 'text/plain');
@@ -59,6 +60,7 @@ describe('POST /v1/fragments', () => {
       .send('This is another fragment')
       .set('Content-Type', 'text/plain');
 
+    expect(res.statusCode).toBe(201);
     expect(res.headers).toHaveProperty('location');
     const fragmentId = res.body.id; // Assuming id is returned in the body
     expect(res.headers.location).toBe(`http://localhost:8080/v1/fragments/${fragmentId}`); // Adjust the base URL if necessary
