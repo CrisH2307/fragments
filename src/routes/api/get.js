@@ -12,7 +12,7 @@ const getAllFragment = async (req, res) => {
     logger.debug(`Fetched all fragments for user: ${req.user}`);
     res.status(200).json(createSuccessResponse({ fragments }));
   } catch (error) {
-    //logger.error(`Failed to get fragments for user ${req.user}: ${error}`);
+    logger.error(`Failed to get fragments for user ${req.user}: ${error}`);
     res.status(500).json(createErrorResponse(500, 'Internal Server Error'));
   }
 };
