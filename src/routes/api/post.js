@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
     } catch (err) {
       res
         .status(500)
-        .json(createErrorResponse(500, 'error catched while creating fragment from post'));
+        .json(createErrorResponse(500, 'error catched while creating fragment from post'), err);
     }
   } else {
     logger.debug('Received invalid body type:', typeof req.body);

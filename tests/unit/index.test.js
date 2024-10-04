@@ -1,8 +1,5 @@
 // src/auth/index.test.js
 
-const mockCognito = jest.mock('../../src/auth/cognito', () => ({}), { virtual: true });
-const mockBasicAuth = jest.mock('../../src/auth/basic-auth', () => ({}), { virtual: true });
-
 // Clear env variables before each test
 beforeEach(() => {
   jest.resetModules(); // Clear previous imports
