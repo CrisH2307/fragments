@@ -191,6 +191,14 @@ class Fragment {
     }
     return isSupported;
   }
+  async convertTo(extension) {
+    if (extension === '.html' && this.mimeType === 'text/plain') {
+      // Convert plain text to HTML by wrapping it in basic HTML tags
+      return `<html><body><pre>${this.data}</pre></body></html>`;
+    }
+    // Add handling for other conversions if necessary
+    throw new Error(`Conversion to ${extension} not implemented`);
+  }
 }
 
 module.exports.Fragment = Fragment;

@@ -1,12 +1,11 @@
+// Imports
 const { createErrorResponse } = require('../../response');
 const logger = require('../../logger');
 const { Fragment } = require('../../model/fragment');
 
-/**
- * Define valid conversions for each fragment type.
- */
+// Conversion Configurations
 const validConversions = {
-  'text/plain': ['.txt'],
+  'text/plain': ['.txt', '.html'],
   'text/markdown': ['.md', '.html', '.txt'],
   'text/html': ['.html', '.txt'],
   'text/csv': ['.csv', '.txt', '.json'],
@@ -19,9 +18,6 @@ const validConversions = {
   'image/gif': ['.png', '.jpg', '.webp', '.gif', '.avif'],
 };
 
-/**
- * Get MIME type from extension.
- */
 const getMimeTypeFromExtension = (extension) =>
   ({
     '.txt': 'text/plain',
@@ -37,22 +33,38 @@ const getMimeTypeFromExtension = (extension) =>
     '.webp': 'image/webp',
     '.gif': 'image/gif',
     '.avif': 'image/avif',
-  })[extension] || 'application/octet-stream'; // Default MIME type
+  })[extension] || 'application/octet-stream';
 
-/**
- * Get fragment with the provided fragment ID.
- */
+// Main Function: Handles the GET request for a specific fragment by ID with optional conversion
 const getId = async (req, res) => {
   const { id } = req.params;
-  const extension = id.includes('.') ? id.slice(id.lastIndexOf('.')) : null; // Extract extension
+  const extension = id.includes('.') ? id.slice(id.lastIndexOf('.')) : null;
 
   try {
-    const fragmentMetadata = await Fragment.byId(req.user, id);
+    const fragmentMetadata = await Fragment.byId(req.user, id.split('.')[0]);
     const fragment = new Fragment(fragmentMetadata);
 
-    if (extension && validConversions[fragment.mimeType].includes(extension)) {
-      const convertedData = await fragment.convertTo(extension); // Assume convertTo is implemented
-      return res.status(200).type(getMimeTypeFromExtension(extension)).send(convertedData);
+    if (extension) {
+      const mimeType = fragment.mimeType;
+      if (!validConversions[mimeType]?.includes(extension)) {
+        logger.error(`Unsupported conversion from ${mimeType} to ${extension}`);
+        return res
+          .status(415)
+          .json(
+            createErrorResponse(
+              415,
+              `Conversion to ${extension} not supported for type ${mimeType}`
+            )
+          );
+      }
+
+      try {
+        const convertedData = await fragment.convertTo(extension);
+        return res.status(200).type(getMimeTypeFromExtension(extension)).send(convertedData);
+      } catch (conversionError) {
+        logger.error(`Conversion failed for fragment ${id} to ${extension}: ${conversionError}`);
+        return res.status(415).json(createErrorResponse(415, `Conversion to ${extension} failed`));
+      }
     }
 
     return res
