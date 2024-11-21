@@ -85,5 +85,178 @@ describe('POST /v1/fragments', () => {
     expect(res.statusCode).toBe(415); // 415 Unsupported Media Type
   });
 
-  // TODO: we'll need to add tests to check the contents of the fragments array later
+  test('check if expand == 1 and is Id in Idlist', async () => {
+    const res = await request(app)
+      .get('/v1/fragments?expand=1')
+      .auth('user1@email.com', 'password1');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.status).toBe('ok');
+    expect(Array.isArray(res.body.fragments)).toBe(true);
+  });
+});
+
+describe('Checking fragments/:id/info', () => {
+  test('Check get success id', async () => {
+    const resPost = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send('This is a fragment');
+
+    const id = resPost.body.id;
+
+    const res = await request(app)
+      .get(`/v1/fragments/${id}/info`)
+      .auth('user1@email.com', 'password1')
+      .send('new fragment');
+    expect(res.status).toBe(200);
+  });
+
+  test('Check get failed due to not valid id', async () => {
+    const res = await request(app)
+      .get(`/v1/fragments/999/info`)
+      .auth('user1@email.com', 'password1')
+      .send('new fragment');
+    expect(res.status).toBe(404);
+  });
+});
+
+// Valid Conversion
+
+describe('get valid convert', () => {
+  test('Check validConversion() pass', async () => {
+    const resPost = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send('fragment');
+
+    const id = resPost.body.id;
+
+    const res = await request(app)
+      .get(`/v1/fragments/${id}.html`)
+      .auth('user1@email.com', 'password1');
+    expect(res.status).toBe(200);
+  });
+
+  test('Check validConversions() fail', async () => {
+    const resPost = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send('fragment');
+
+    const id = resPost.body.id;
+
+    const res = await request(app)
+      .get(`/v1/fragments/${id}.png`)
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send('new fragment');
+    expect(res.status).toBe(415);
+  });
+
+  test('Check validConversions() text no ext', async () => {
+    const resPost = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send('fragment');
+
+    const id = resPost.body.id;
+
+    const res = await request(app)
+      .get(`/v1/fragments/${id}`)
+      .auth('user1@email.com', 'password1')
+      .send('new fragment');
+    expect(res.status).toBe(200);
+  });
+
+  test('Check validConversion() markdown with ext', async () => {
+    const resPost = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/markdown')
+      .send('fragment');
+
+    const id = resPost.body.id;
+
+    const res = await request(app)
+      .get(`/v1/fragments/${id}.html`)
+      .auth('user1@email.com', 'password1')
+      .send('new fragment');
+    expect(res.status).toBe(200);
+  });
+
+  test('Check validConversions() markdown no ext', async () => {
+    const resPost = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/markdown')
+      .send('fragment');
+
+    const id = resPost.body.id;
+
+    const res = await request(app)
+      .get(`/v1/fragments/${id}`)
+      .auth('user1@email.com', 'password1')
+      .send('new fragment');
+    expect(res.status).toBe(200);
+  });
+
+  test('Check validConversion() html having ext', async () => {
+    const resPost = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/html')
+      .send('fragment');
+
+    const id = resPost.body.id;
+
+    const res = await request(app)
+      .get(`/v1/fragments/${id}.html`)
+      .auth('user1@email.com', 'password1')
+      .send('new fragment');
+    expect(res.status).toBe(200);
+  });
+
+  test('Check validConversion() markdown to html having ext', async () => {
+    const resPost = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/markdown')
+      .send('fragment');
+
+    const id = resPost.body.id;
+
+    const res = await request(app)
+      .get(`/v1/fragments/${id}.html`)
+      .auth('user1@email.com', 'password1')
+      .send('new fragment');
+    expect(res.status).toBe(200);
+  });
+
+  test('Invalid ID', async () => {
+    const res = await request(app)
+      .get(`/v1/fragments/1234`)
+      .auth('user1@email.com', 'password1')
+      .send('new fragment');
+    expect(res.status).toBe(404);
+  });
+
+  test('Check validConversion() test png', async () => {
+    const resPost = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'image/png')
+      .send('fragment');
+
+    const id = resPost.body.id;
+
+    const res = await request(app)
+      .get(`/v1/fragments/${id}.png`)
+      .auth('user1@email.com', 'password1')
+      .send('new fragment');
+    expect(res.status).toBe(200);
+  });
 });

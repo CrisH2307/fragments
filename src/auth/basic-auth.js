@@ -27,4 +27,5 @@ module.exports.strategy = () =>
 // module.exports.authenticate = () => passport.authenticate('http', { session: false });
 //
 // Now we'll delegate the authorization to our authorize middleware
+
 module.exports.authenticate = () => authorize('http');

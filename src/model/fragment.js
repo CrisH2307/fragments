@@ -161,7 +161,6 @@ class Fragment {
         return formats; // Return the corresponding formats for the supported type
       }
     }
-
     logger.warn('Unsupported Content-Type:', this.type);
     return []; // Return an empty array for unsupported types
   }
