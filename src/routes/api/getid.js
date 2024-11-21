@@ -28,9 +28,8 @@ function convertFragmentData(data, contentType, extension) {
   console.debug(`Attempting to convert data: contentType=${contentType}, extension=${extension}`);
 
   if (extension === 'txt') {
-    if (contentType === 'text/plain') {
-      return data;
-    }
+    console.debug('Handling conversion to plain text');
+    return data.toString(); // Assuming plain text conversion is returning stringified data
   } else if (extension === 'html') {
     if (contentType === 'text/plain') {
       console.debug('Converting text/plain to HTML');
@@ -59,7 +58,7 @@ const getMimeTypeFromExtension = (extension) => {
     gif: 'image/gif',
     avif: 'image/avif',
   };
-  return contentTypes[extension] || 'application/octet-stream';
+  return contentTypes[extension];
 };
 
 // Main Function: Handles the GET request for a specific fragment by ID with optional conversion
