@@ -4,6 +4,7 @@ const express = require('express');
 
 // version and author from package.json
 const { version, author } = require('../../package.json');
+const { hostname } = require('os');
 
 // Create a router that we can use to mount our API
 const router = express.Router();
@@ -30,10 +31,12 @@ router.get('/', (req, res) => {
   res.status(200).json(
     createSuccessResponse({
       status: 'ok',
-      author,
+      author: 'Cris Huynh',
       // Use your own GitHub URL for this!
       githubUrl: 'https://github.com/CrisH2307/fragments',
       version,
+      // Include the hostname in the response
+      hostname: hostname(),
     })
   );
 });

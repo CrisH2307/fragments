@@ -49,13 +49,13 @@ describe('POST /v1/fragments', () => {
       .auth('user1@email.com', 'password1')
       .send('This is a fragment')
       .set('Content-Type', 'text/plain');
-
+    console.log(res);
     expect(res.statusCode).toBe(201);
-    expect(res.body).toHaveProperty('id');
-    expect(res.body).toHaveProperty('created');
-    expect(res.body).toHaveProperty('type', 'text/plain');
-    expect(res.body.size).toBe('This is a fragment'.length);
-    expect(res.body.ownerId).toBe(
+    expect(res.body.fragment).toHaveProperty('id');
+    expect(res.body.fragment).toHaveProperty('created');
+    expect(res.body.fragment).toHaveProperty('type', 'text/plain');
+    expect(res.body.fragment.size).toBe('This is a fragment'.length);
+    expect(res.body.fragment.ownerId).toBe(
       '11d4c22e42c8f61feaba154683dea407b101cfd90987dda9e342843263ca420a'
     );
   });
@@ -70,7 +70,7 @@ describe('POST /v1/fragments', () => {
 
     expect(res.statusCode).toBe(201);
     expect(res.headers).toHaveProperty('location');
-    const fragmentId = res.body.id; // Assuming id is returned in the body
+    const fragmentId = res.body.fragment.id; // Assuming id is returned in the body
     expect(res.headers.location).toBe(`http://localhost:8080/v1/fragments/${fragmentId}`); // Adjust the base URL if necessary
   });
 
@@ -94,13 +94,13 @@ describe('Checking fragments/:id/info', () => {
       .set('Content-Type', 'text/plain')
       .send('This is a fragment');
 
-    const id = resPost.body.id;
+    const id = resPost.body.fragment.id;
 
     const res = await request(app)
       .get(`/v1/fragments/${id}/info`)
       .auth('user1@email.com', 'password1')
       .send('new fragment');
-    expect(res.status).toBe(200);
+    expect(res.statusCode).toBe(200);
   });
 
   test('Check get failed due to not valid id', async () => {
@@ -122,7 +122,7 @@ describe('get valid convert', () => {
       .set('Content-Type', 'text/plain')
       .send('fragment');
 
-    const id = resPost.body.id;
+    const id = resPost.body.fragment.id;
 
     const res = await request(app)
       .get(`/v1/fragments/${id}.png`)
@@ -139,7 +139,7 @@ describe('get valid convert', () => {
       .set('Content-Type', 'text/plain')
       .send('fragment');
 
-    const id = resPost.body.id;
+    const id = resPost.body.fragment.id;
 
     const res = await request(app)
       .get(`/v1/fragments/${id}`)
@@ -155,7 +155,7 @@ describe('get valid convert', () => {
       .set('Content-Type', 'text/markdown')
       .send('fragment');
 
-    const id = resPost.body.id;
+    const id = resPost.body.fragment.id;
 
     const res = await request(app)
       .get(`/v1/fragments/${id}`)

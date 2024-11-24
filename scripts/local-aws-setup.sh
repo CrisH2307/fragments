@@ -13,7 +13,7 @@ echo "AWS_SECRET_ACCESS_KEY=test"
 export AWS_SECRET_ACCESS_KEY=test
 
 echo "AWS_SESSION_TOKEN=test"
-export AWS_SESSION_TOKEN=test
+export AWS_SESSION_TOKEN=tests
 
 export AWS_DEFAULT_REGION=us-east-1
 echo "AWS_DEFAULT_REGION=us-east-1"

@@ -15,9 +15,24 @@ const getInfo = require('./getInfo');
 // Create a router on which to mount our API endpoints
 const router = express.Router();
 
+router.get('/', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  res.status(200).json(
+    createSuccessResponse({
+      // TODO: make sure these are changed for your name and repo
+      author: 'Your Name',
+      githubUrl: 'https://github.com/your-github-account-username/fragments',
+      version,
+      // Include the hostname in the response
+      hostname: hostname(),
+    })
+  );
+});
+
 router.get('/fragments', getAllFragment);
 router.get('/fragments/:id', getId);
 router.get('/fragments/:id/:info', getInfo);
+router.delete('/fragments/:id', require('./delete'));
 
 // Support sending various Content-Types on the body up to 5M in size
 const rawBody = () =>

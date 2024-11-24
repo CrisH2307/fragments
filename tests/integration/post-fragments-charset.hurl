@@ -8,4 +8,4 @@ user1@email.com:password1
 
 HTTP/1.1 201
 [Asserts]
-jsonpath "$.type" == "text/plain; charset=utf-8"
+jsonpath "$.fragment.type" == "text/plain; charset=utf-8"

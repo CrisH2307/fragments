@@ -12,16 +12,40 @@ module.exports = async (req, res) => {
         type: req.headers['content-type'],
         size: Buffer.byteLength(req.body),
       });
+      fragment.created = new Date().toISOString();
+      fragment.updated = fragment.created;
       await fragment.save();
       await fragment.setData(req.body);
 
+      logger.debug('Content-Type:', req.headers['content-type']);
+      logger.debug('Size:', Buffer.byteLength(req.body));
+
+      logger.debug('Fragment details:', {
+        id: fragment.id,
+        ownerId: fragment.ownerId,
+        created: fragment.created,
+        updated: fragment.updated,
+        type: fragment.type,
+        size: fragment.size,
+      });
+
       res.setHeader('Location', `${API_URL}/v1/fragments/${fragment.id}`);
-      const successResponse = createSuccessResponse(fragment);
-      res.status(201).json(successResponse);
+      // Set Content-Type exactly as expected in the test
+      res.setHeader('Content-Type', 'application/json');
+
+      // Return the correct response structure
+      res.status(201).json({
+        fragment: {
+          id: fragment.id,
+          ownerId: fragment.ownerId,
+          created: fragment.created,
+          updated: fragment.updated,
+          type: fragment.type,
+          size: fragment.size,
+        },
+      });
     } catch (err) {
-      res
-        .status(500)
-        .json(createErrorResponse(500, 'error catched while creating fragment from post'), err);
+      res.status(500).json(createErrorResponse(500, `Error creating fragment: ${err.message}`));
     }
   } else {
     logger.debug('Received invalid body type:', typeof req.body);

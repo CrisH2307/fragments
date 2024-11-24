@@ -2,12 +2,12 @@
 # Authenticated POST to /v1/fragments
 POST http://localhost:8080/v1/fragments
 # We're sending a plain text fragment
-Content-Type: application/json
+Content-Type: text/plain; charset=utf-8
 # Include HTTP Basic Auth credentials
 [BasicAuth]
 user1@email.com:password1
 # Body of the request goes in ```...``` when it's a string
-`This is a fragment!`
+`Hello S3!`
 
 # 1. We expect to get back an HTTP 201
 HTTP/1.1 201
@@ -23,21 +23,41 @@ jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 # You could also write a regex for this and use matches
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
-jsonpath "$.fragment.type" == "application/json"
+jsonpath "$.fragment.type" == "text/plain; charset=utf-8"
 # 19 is the length of our fragment data: 'This is a fragment!'
-jsonpath "$.fragment.size" == 19
-
+jsonpath "$.fragment.size" == 9
 # Capture the Location URL into a variable named `url`
 [Captures]
 url: header "Location"
+idCreated: jsonpath "$.fragment.id"
+size: jsonpath "$.fragment.size"
+type: jsonpath "$.fragment.type"
 
-# 2. Try to GET the fragment we just posted by its URL
+
+# 3. Try to GET the fragment we just posted by its URL
 GET {{url}}
 [BasicAuth]
 user1@email.com:password1
 
 HTTP/1.1 200
-Content-Type: application/json; charset=utf-8
-Content-Length: 19
+Content-Type: text/plain; charset=utf-8
+Content-Length: 9
 [Asserts]
-body == "This is a fragment!"
+body == "Hello S3!" 
+
+# 4. DELETE the fragment
+DELETE {{url}}
+[BasicAuth]
+user1@email.com:password1
+
+# We expect to get back an HTTP 200
+HTTP/1.1 200
+# 7. Try to GET the fragment again using the url as an authorized user.
+GET {{url}}
+
+[BasicAuth]
+user1@email.com:password1
+
+# We should get back an HTTP 1.1 404 response
+HTTP/1.1 404
+

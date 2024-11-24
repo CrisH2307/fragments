@@ -14,7 +14,7 @@ const {
   writeFragmentData,
   listFragments,
   deleteFragment,
-} = require('./data/memory/index');
+} = require('./data/aws/index');
 
 class Fragment {
   constructor({ id, ownerId, created, updated, type, size = 0 }) {
@@ -79,9 +79,14 @@ class Fragment {
    * @param {string} id fragment's id
    * @returns Promise
    */
-  static delete(ownerId, id) {
-    logger.debug('Deleting fragment:', { ownerId, id });
-    return deleteFragment(ownerId, id);
+  static async delete(ownerId, id) {
+    try {
+      const fragment = await readFragment(ownerId, id);
+      if (!fragment) throw new Error('Fragment not found');
+      return await deleteFragment(ownerId, id);
+    } catch (error) {
+      return Promise.reject(new Error(error.message || 'Unable to delete fragment'));
+    }
   }
 
   /**
