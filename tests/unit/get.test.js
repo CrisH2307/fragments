@@ -49,7 +49,7 @@ describe('POST /v1/fragments', () => {
       .auth('user1@email.com', 'password1')
       .send('This is a fragment')
       .set('Content-Type', 'text/plain');
-    console.log(res);
+
     expect(res.statusCode).toBe(201);
     expect(res.body.fragment).toHaveProperty('id');
     expect(res.body.fragment).toHaveProperty('created');
@@ -84,6 +84,15 @@ describe('POST /v1/fragments', () => {
 
     expect(res.statusCode).toBe(415); // 415 Unsupported Media Type
   });
+
+  test('check if expand == 1 and is Id in Idlist', async () => {
+    const res = await request(app)
+      .get('/v1/fragments?expand=1')
+      .auth('user1@email.com', 'password1');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.status).toBe('ok');
+    expect(Array.isArray(res.body.fragments)).toBe(true);
+  });
 });
 
 describe('Checking fragments/:id/info', () => {
@@ -100,7 +109,7 @@ describe('Checking fragments/:id/info', () => {
       .get(`/v1/fragments/${id}/info`)
       .auth('user1@email.com', 'password1')
       .send('new fragment');
-    expect(res.statusCode).toBe(200);
+    expect(res.status).toBe(200);
   });
 
   test('Check get failed due to not valid id', async () => {
@@ -115,6 +124,21 @@ describe('Checking fragments/:id/info', () => {
 // Valid Conversion
 
 describe('get valid convert', () => {
+  test('Check validConversion() pass', async () => {
+    const resPost = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send('fragment');
+
+    const id = resPost.body.fragment.id;
+
+    const res = await request(app)
+      .get(`/v1/fragments/${id}.html`)
+      .auth('user1@email.com', 'password1');
+    expect(res.status).toBe(200);
+  });
+
   test('Check validConversions() fail', async () => {
     const resPost = await request(app)
       .post('/v1/fragments')
