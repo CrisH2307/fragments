@@ -31,7 +31,7 @@ router.get('/', (req, res) => {
   res.status(200).json(
     createSuccessResponse({
       status: 'ok',
-      author: 'Cris Huynh',
+      author: 'CRISHUYNH',
       // Use your own GitHub URL for this!
       githubUrl: 'https://github.com/CrisH2307/fragments',
       version,
