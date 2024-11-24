@@ -3,7 +3,7 @@
 const express = require('express');
 
 // version and author from package.json
-const { version, author } = require('../../package.json');
+const { version } = require('../../package.json');
 const { hostname } = require('os');
 
 // Create a router that we can use to mount our API
