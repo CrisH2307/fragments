@@ -14,8 +14,8 @@ module.exports = async (req, res) => {
     fragment = new Fragment(await Fragment.byId(req.user, req.params.id));
     // frag = await fragment.getData();
     // res.setHeader('Content-Type', fragment.type);
-  } catch (error) {
-    return res.status(404).json(createErrorResponse('Fragment not found'));
+  } catch (e) {
+    return res.status(404).json(createErrorResponse('Fragment not found', e));
   }
 
   if (!Buffer.isBuffer(req.body)) {

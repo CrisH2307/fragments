@@ -1,4 +1,4 @@
-const { createSuccessResponse, createErrorResponse } = require('../../../src/response');
+const { createErrorResponse } = require('../../../src/response');
 const logger = require('../../logger');
 const { Fragment } = require('../../model/fragment');
 require('dotenv').config();
