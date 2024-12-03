@@ -4,7 +4,7 @@ const { createSuccessResponse, createErrorResponse } = require('../../response')
 // const express = require('express');
 const { Fragment } = require('../../model/fragment');
 // const contentType = require('content-type');
-const API_URL = 'http://localhost:8080';
+const API_URL = process.env.API_URL || 'http://localhost:8080';
 
 // const logger = require('../../logger');
 

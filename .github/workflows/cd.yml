@@ -98,7 +98,6 @@ jobs:
             AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
             API_URL=http://fragments-lb-63737120.us-east-1.elb.amazonaws.com:8080
             PORT=8080
-            HTPASSWD_FILE=tests/.htpasswd
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1

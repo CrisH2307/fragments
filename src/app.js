@@ -76,7 +76,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-//app.use('/v1/fragments', express.raw({ type: 'text/plain', limit: '1mb' }));
+app.use('/v1/fragments', express.raw({ type: 'text/plain', limit: '1mb' }));
 
 // Export our `app` so we can access it in server.js
 module.exports = app;
