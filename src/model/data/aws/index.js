@@ -4,17 +4,11 @@ const s3Client = require('./s3Client');
 const ddbDocClient = require('./ddbDocClient');
 const logger = require('../../../logger');
 const { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
-const {
-  PutCommand,
-  GetCommand,
-  QueryCommand,
-  DynamoDBDocumentClient,
-  DeleteCommand,
-} = require('@aws-sdk/lib-dynamodb');
+const { PutCommand, GetCommand, QueryCommand, DeleteCommand } = require('@aws-sdk/lib-dynamodb');
 
 // Create two in-memory databases: one for fragment metadata and the other for raw data
 //const data = new MemoryDB();
-const metadata = new MemoryDB();
+//const metadata = new MemoryDB();
 
 // Write a fragment's metadata to memory db. Returns a Promise
 function writeFragment(fragment) {
