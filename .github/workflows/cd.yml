@@ -93,7 +93,7 @@ jobs:
           environment-variables: |
             LOG_LEVEL=debug
             NODE_ENV=production
-            API_URL=http://fragments-lb-1320951532.us-east-1.elb.amazonaws.com/
+            API_URL=http://fragments-lb-1320951532.us-east-1.elb.amazonaws.com
             AWS_S3_BUCKET_NAME=xhuynh-fragments
             AWS_DYNAMODB_TABLE_NAME=fragments
             AWS_COGNITO_POOL_ID=us-east-1_7Oy8lffa0
