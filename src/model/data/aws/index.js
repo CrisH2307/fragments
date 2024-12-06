@@ -45,7 +45,11 @@ async function readFragment(ownerId, id) {
     const data = await ddbDocClient.send(command);
     // We may or may not get back any data (e.g., no item found for the given key).
     // If we get back an item (fragment), we'll return it.  Otherwise we'll return `undefined`.
-    return data?.Item;
+    if (!data?.Item) {
+      throw new Error(`Fragment with ID ${id} not found`);
+    }
+    logger.debug('READ FRAGMENT', data.Item);
+    return data.Item;
   } catch (err) {
     logger.warn({ err, params }, 'error reading fragment from DynamoDB');
     throw err;
@@ -115,6 +119,7 @@ async function readFragmentData(ownerId, id) {
     // Get the object from the Amazon S3 bucket. It is returned as a ReadableStream.
     const data = await s3Client.send(command);
     // Convert the ReadableStream to a Buffer
+    logger.debug('READ', data);
     return streamToBuffer(data.Body);
   } catch (err) {
     const { Bucket, Key } = params;
@@ -152,7 +157,7 @@ async function listFragments(ownerId, expand = false) {
   try {
     // Wait for the data to come back from AWS
     const data = await ddbDocClient.send(command);
-
+    logger.debug({ params, data }, 'DynamoDB query result IS HEREEEEEEEEEEEEEEEE');
     // If we haven't expanded to include all attributes, remap this array from
     // [ {"id":"b9e7a264-630f-436d-a785-27f30233faea"}, {"id":"dad25b07-8cd6-498b-9aaf-46d358ea97fe"} ,... ] to
     // [ "b9e7a264-630f-436d-a785-27f30233faea", "dad25b07-8cd6-498b-9aaf-46d358ea97fe", ... ]
@@ -197,7 +202,3 @@ module.exports.readFragment = readFragment;
 module.exports.writeFragmentData = writeFragmentData;
 module.exports.readFragmentData = readFragmentData;
 module.exports.deleteFragment = deleteFragment;
-
-// If the environment sets an AWS Region, we'll use AWS backend
-// services (S3, DynamoDB); otherwise, we'll use an in-memory db.
-module.exports = process.env.AWS_REGION ? require('./aws') : require('../memory');

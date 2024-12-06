@@ -91,13 +91,14 @@ jobs:
           # for any values that should not be checked into git directly.  Here are
           # a few to get you started, but you should fill in the rest yourself.
           environment-variables: |
-            LOG_LEVEL=info
+            LOG_LEVEL=debug
             NODE_ENV=production
-            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
-            API_URL=http://fragments-lb-63737120.us-east-1.elb.amazonaws.com:8080
-            PORT=8080
+            API_URL=http://fragments-lb-1320951532.us-east-1.elb.amazonaws.com/
+          # HTPASSWD_FILE=tests/.htpasswd
+            AWS_S3_BUCKET_NAME=xhuynh-fragments
+            AWS_DYNAMODB_TABLE_NAME=fragments
+            AWS_COGNITO_POOL_ID=us-east-1_7Oy8lffa0
+            AWS_COGNITO_CLIENT_ID=7pomk19bma9bmp75mkc919ae1i
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1

@@ -1,10 +1,11 @@
 {
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:499081945100:task-definition/fragments-task:1",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:499081945100:task-definition/fragments-task:5",
   "containerDefinitions": [
     {
-      "name": "fragments",
-      "image": "499081945100.dkr.ecr.us-east-1.amazonaws.com/fragments:v0.9.0",
+      "name": "fragments-container",
+      "image": "499081945100.dkr.ecr.us-east-1.amazonaws.com/fragments:latest",
       "cpu": 256,
+      "memory": 512,
       "memoryReservation": 512,
       "portMappings": [
         {
@@ -18,8 +19,36 @@
       "essential": true,
       "environment": [
         {
+          "name": "AWS_COGNITO_POOL_ID",
+          "value": "us-east-1_7Oy8lffa0"
+        },
+        {
           "name": "PORT",
           "value": "80"
+        },
+        {
+          "name": "AWS_S3_ENDPOINT_URL",
+          "value": "xhuynh-fragments"
+        },
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        },
+        {
+          "name": "AWS_DYNAMODB_TABLE_NAME",
+          "value": "fragments"
+        },
+        {
+          "name": "AWS_S3_BUCKET_NAME",
+          "value": "xhuynh-fragments"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "value": "debug"
+        },
+        {
+          "name": "AWS_COGNITO_CLIENT_ID",
+          "value": "7pomk19bma9bmp75mkc919ae1i"
         }
       ],
       "environmentFiles": [],
@@ -45,7 +74,7 @@
   "taskRoleArn": "arn:aws:iam::499081945100:role/LabRole",
   "executionRoleArn": "arn:aws:iam::499081945100:role/LabRole",
   "networkMode": "awsvpc",
-  "revision": 1,
+  "revision": 5,
   "volumes": [],
   "status": "ACTIVE",
   "requiresAttributes": [
@@ -54,6 +83,9 @@
     },
     {
       "name": "ecs.capability.execution-role-awslogs"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.ecr-auth"
     },
     {
       "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
@@ -66,6 +98,9 @@
     },
     {
       "name": "com.amazonaws.ecs.capability.task-iam-role"
+    },
+    {
+      "name": "ecs.capability.execution-role-ecr-pull"
     },
     {
       "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
@@ -86,7 +121,7 @@
     "cpuArchitecture": "X86_64",
     "operatingSystemFamily": "LINUX"
   },
-  "registeredAt": "2024-11-25T16:05:09.621Z",
+  "registeredAt": "2024-12-06T14:26:32.926Z",
   "registeredBy": "arn:aws:sts::499081945100:assumed-role/voclabs/user3508343=Huynh,_Xuan_Khang",
   "tags": []
 }

@@ -14,7 +14,7 @@ const {
   writeFragmentData,
   listFragments,
   deleteFragment,
-} = require('./data/aws/index');
+} = require('./data');
 
 class Fragment {
   constructor({ id, ownerId, created, updated, type, size = 0 }) {
@@ -207,3 +207,5 @@ class Fragment {
 }
 
 module.exports.Fragment = Fragment;
+
+// PORT 80, NOT USE FAKE S3 use xhuynh-fragments, NO AWS CREDENTION, NODE_ENV production

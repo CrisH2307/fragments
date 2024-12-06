@@ -3,7 +3,7 @@
 const express = require('express');
 
 // version and author from package.json
-const { version } = require('../../package.json');
+const { version, author } = require('../../package.json');
 const { hostname } = require('os');
 
 // Create a router that we can use to mount our API
@@ -31,7 +31,7 @@ router.get('/', (req, res) => {
   res.status(200).json(
     createSuccessResponse({
       status: 'ok',
-      author: 'CRISHUYNH',
+      author,
       // Use your own GitHub URL for this!
       githubUrl: 'https://github.com/CrisH2307/fragments',
       version,
