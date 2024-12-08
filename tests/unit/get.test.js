@@ -213,6 +213,8 @@ describe('get valid convert', () => {
 
     const id = resPost.body.fragment.id;
 
+    console.log(resPost.body);
+
     const res = await request(app)
       .get(`/v1/fragments/${id}.html`)
       .auth('user1@email.com', 'password1')
