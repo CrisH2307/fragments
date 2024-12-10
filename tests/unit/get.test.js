@@ -133,9 +133,7 @@ describe('get valid convert', () => {
 
     const id = resPost.body.fragment.id;
 
-    const res = await request(app)
-      .get(`/v1/fragments/${id}.html`)
-      .auth('user1@email.com', 'password1');
+    const res = await request(app).get(`/v1/fragments/${id}`).auth('user1@email.com', 'password1');
     expect(res.status).toBe(200);
   });
 
@@ -213,8 +211,6 @@ describe('get valid convert', () => {
 
     const id = resPost.body.fragment.id;
 
-    console.log(resPost.body);
-
     const res = await request(app)
       .get(`/v1/fragments/${id}.html`)
       .auth('user1@email.com', 'password1')
@@ -260,5 +256,192 @@ describe('get valid convert', () => {
       .auth('user1@email.com', 'password1')
       .send('new fragment');
     expect(res.status).toBe(200);
+  });
+
+  test('trying to convert unsupported formats returns 415', async () => {
+    const resPost = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send('fragment');
+
+    const id = resPost.body.fragment.id;
+
+    const res = await request(app)
+      .get(`/v1/fragments/${id}.png`)
+      .auth('user1@email.com', 'password1');
+
+    expect(res.status).toBe(415);
+  });
+
+  test('missing fragment returns 404', async () => {
+    const res = await request(app)
+      .get('/v1/fragments/invalid-id')
+      .auth('user1@email.com', 'password1');
+
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe(undefined);
+  });
+
+  // .html conversion test
+  test("authenticated users are able to do '.html' conversions for supported type", async () => {
+    // POST a html fragment with text/html content type
+    const postRes1 = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/html')
+      .send('This is a HTML fragment');
+    expect(postRes1.statusCode).toBe(201);
+    const id1 = JSON.parse(postRes1.text).fragment.id;
+
+    // POST a markdwon fragment with text/markdown content type
+    const postRes2 = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/markdown')
+      .send('This is a markdown fragment');
+    expect(postRes2.statusCode).toBe(201);
+    const id2 = JSON.parse(postRes2.text).fragment.id;
+
+    // ---------------------------------------------------------------------------------------------- //
+    // Try to convert html fragment using GET v1/framents/:id:.ext
+    const getRes1 = await request(app)
+      .get('/v1/fragments/' + id1 + '.html')
+      .auth('user1@email.com', 'password1');
+    expect(getRes1.statusCode).toBe(200);
+    expect(getRes1.header['content-type']).toBe('text/html');
+
+    // Try to convert markdown fragment using Get v1/fragment/:id:.ext
+    const getRes2 = await request(app)
+      .get('/v1/fragments/' + id2 + '.html')
+      .auth('user1@email.com', 'password1');
+    expect(getRes2.statusCode).toBe(200);
+    expect(getRes2.header['content-type']).toBe('text/html; charset=utf-8');
+  });
+
+  // .md conversion test
+  test("authenticated users are able to do '.md' conversions for supported type", async () => {
+    // POST a markdown fragment with text/html content type
+    const postRes1 = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/markdown')
+      .send('This is a markdown fragment');
+    expect(postRes1.statusCode).toBe(201);
+    const id1 = JSON.parse(postRes1.text).fragment.id;
+
+    // ---------------------------------------------------------------------------------------------- //
+    // Try to convert markdown fragment using GET v1/framents/:id:.ext
+    const getRes1 = await request(app)
+      .get('/v1/fragments/' + id1 + '.md')
+      .auth('user1@email.com', 'password1');
+    expect(getRes1.statusCode).toBe(200);
+    expect(getRes1.header['content-type']).toBe('text/markdown');
+  });
+
+  // .JSON conversion test
+  test("authenticated users are able to do '.json' conversions for supported type", async () => {
+    // POST a JSON fragment with application/json content type
+    const postData1 = { name: 'JSON' };
+    const postRes1 = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'application/json')
+      .send(postData1);
+    expect(postRes1.statusCode).toBe(201);
+    const id1 = JSON.parse(postRes1.text).fragment.id;
+
+    // ---------------------------------------------------------------------------------------------- //
+    // Try to convert JSON fragment using GET v1/framents/:id:.ext
+    const getRes1 = await request(app)
+      .get('/v1/fragments/' + id1 + '.json')
+      .auth('user1@email.com', 'password1');
+    expect(getRes1.statusCode).toBe(200);
+    expect(getRes1.header['content-type']).toBe('application/json');
+  });
+
+  // Cannot convert unsupported type to .html
+  test("authenticated users are unableable to do '.html' conversions for unsupported type", async () => {
+    // POST a plain fragment with text/plain content type
+    const postRes1 = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send('This is a plain fragment');
+    expect(postRes1.statusCode).toBe(201);
+    const id1 = JSON.parse(postRes1.text).fragment.id;
+
+    // ---------------------------------------------------------------------------------------------- //
+    // Try to convert html fragment using GET v1/framents/:id:.ext
+    const getRes1 = await request(app)
+      .get('/v1/fragments/' + id1 + '.html')
+      .auth('user1@email.com', 'password1');
+    expect(getRes1.statusCode).toBe(415);
+  });
+
+  // Cannot convert unsupported type to .md
+  test("authenticated users are unableable to do '.md' conversions for unsupported type", async () => {
+    // POST a plain fragment with image/png content type
+    const postRes1 = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send('This is a plain fragment');
+    expect(postRes1.statusCode).toBe(201);
+    const id1 = JSON.parse(postRes1.text).fragment.id;
+
+    // ---------------------------------------------------------------------------------------------- //
+    // Try to convert md fragment using GET v1/framents/:id:.ext
+    const getRes1 = await request(app)
+      .get('/v1/fragments/' + id1 + '.md')
+      .auth('user1@email.com', 'password1');
+    expect(getRes1.statusCode).toBe(415);
+  });
+
+  // Cannot convert unsupported type to .json
+  test("authenticated users are unableable to do '.json' conversions for unsupported type", async () => {
+    // POST a plain fragment with text/plain content type
+    const postRes1 = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send('This is a plain fragment');
+    expect(postRes1.statusCode).toBe(201);
+    const id1 = JSON.parse(postRes1.text).fragment.id;
+
+    // ---------------------------------------------------------------------------------------------- //
+    // Try to convert json fragment using GET v1/framents/:id:.ext
+    const getRes1 = await request(app)
+      .get('/v1/fragments/' + id1 + '.json')
+      .auth('user1@email.com', 'password1');
+    expect(getRes1.statusCode).toBe(415);
+  });
+
+  // Cannot convert unsupported type to .csv
+  test("authenticated users are unableable to do '.csv' conversions for unsupported type", async () => {
+    // POST a plain fragment with text/plain content type
+    const postRes1 = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send('This is a plain fragment');
+    expect(postRes1.statusCode).toBe(201);
+    const id1 = JSON.parse(postRes1.text).fragment.id;
+
+    // ---------------------------------------------------------------------------------------------- //
+    // Try to convert csv fragment using GET v1/framents/:id:.ext
+    const getRes1 = await request(app)
+      .get('/v1/fragments/' + id1 + '.csv')
+      .auth('user1@email.com', 'password1');
+    expect(getRes1.statusCode).toBe(415);
+  });
+
+  test('return 415 for unsupported content type', async () => {
+    const postRes = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/random')
+      .send('This is a fragment');
+    expect(postRes.statusCode).toBe(415);
   });
 });
