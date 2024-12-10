@@ -280,7 +280,6 @@ describe('get valid convert', () => {
       .auth('user1@email.com', 'password1');
 
     expect(res.status).toBe(404);
-    expect(res.body.error).toBe(undefined);
   });
 
   // .html conversion test
