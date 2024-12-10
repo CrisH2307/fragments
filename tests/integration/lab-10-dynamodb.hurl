@@ -1,118 +1,134 @@
-# 1. Authenticated POST to /v1/fragments
+# tests/integration/lab-10-dynamodb.hurl
+# Authenticated POST to /v1/fragments
 POST http://localhost:8080/v1/fragments
+# We're sending a JSON fragment
 Content-Type: application/json
+# Include HTTP Basic Auth credentials
 [BasicAuth]
 user1@email.com:password1
-`{ "service": "DynamoDB" }`
+# Body of the request goes in ```...``` when it's a string
+`{"service": "DynamoDB"}`
 
+# 1. We expect to get back an HTTP 201
 HTTP/1.1 201
+# We have various assertions about the response that we want to check
 [Asserts]
-# Check if Location header is returned and correctly formatted
+# The Location header should look like what we expect (including the fragment id)
 header "Location" matches "^http:\/\/localhost:8080\/v1\/fragments\/[A-Za-z0-9_-]+$"
-# Check the fragment ID is a valid UUID
+# Our fragment ids use UUIDs, see https://ihateregex.io/expr/uuid/
 jsonpath "$.fragment.id" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
-# Check the ownerId is a valid hex string
+# Our ownerId hash is a hex encoded string
 jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
-# Check created and updated timestamps are strings
+# Basic check for the presence of created and updated date strings.
+# You could also write a regex for this and use matches
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
-# Check the fragment type matches JSON
 jsonpath "$.fragment.type" == "application/json"
-
+# Capture the Location URL into a variable named `fragment1_url`
+# Capture the fragment id into a variable named `fragment1_id`
 [Captures]
-# Capture the fragment URL and ID for later use
-url: header "Location"
 fragment1_url: header "Location"
 fragment1_id: jsonpath "$.fragment.id"
 
-# 2. Try to GET the fragment we just created using its URL
-GET {{fragment1_url}}
+# 3. Try to GET the fragment we just posted by its URL
+GET {{fragment1_url}}/info
 [BasicAuth]
 user1@email.com:password1
 
 HTTP/1.1 200
+
 [Asserts]
-# Check the fragment details match the created fragment
 jsonpath "$.fragment.id" == {{fragment1_id}}
-jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 jsonpath "$.fragment.type" == "application/json"
+jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
 
-# 3. Authenticated POST to /v1/fragments with Markdown
+# 4. Authenticated POST to /v1/fragments
 POST http://localhost:8080/v1/fragments
+# We're sending a Markdown fragment
 Content-Type: text/markdown
+# Include HTTP Basic Auth credentials
 [BasicAuth]
 user1@email.com:password1
+# Body of the request goes in ```...``` when it's a string
 `DynamoDB is **great**.`
 
+# We expect to get back an HTTP 201
 HTTP/1.1 201
+# We have various assertions about the response that we want to check
 [Asserts]
-# Check if Location header is returned and correctly formatted
+# The Location header should look like what we expect (including the fragment id)
 header "Location" matches "^http:\/\/localhost:8080\/v1\/fragments\/[A-Za-z0-9_-]+$"
-# Check the fragment ID is a valid UUID
+# Our fragment ids use UUIDs, see https://ihateregex.io/expr/uuid/
 jsonpath "$.fragment.id" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
-# Check the ownerId is a valid hex string
+# Our ownerId hash is a hex encoded string
 jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
-# Check created and updated timestamps are strings
+# Basic check for the presence of created and updated date strings.
+# You could also write a regex for this and use matches
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
-# Check the fragment type matches Markdown
 jsonpath "$.fragment.type" == "text/markdown"
 
+# Capture the Location URL into a variable named `fragment1_url`
+# Capture the fragment id into a variable named `fragment1_id`
 [Captures]
-# Capture the fragment URL and ID for later use
-url: header "Location"
 fragment2_url: header "Location"
 fragment2_id: jsonpath "$.fragment.id"
 
-# 4. Try to GET the Markdown fragment info
+# 6. Try to GET the fragment we just posted by its URL
 GET {{fragment2_url}}/info
 [BasicAuth]
 user1@email.com:password1
 
 HTTP/1.1 200
+
 [Asserts]
-# Check the fragment details match the created fragment
+jsonpath "$.status" == "ok"
 jsonpath "$.fragment.id" == {{fragment2_id}}
+jsonpath "$.fragment.type" == "text/markdown"
 jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
-jsonpath "$.fragment.type" == "text/markdown"
 
-# 5. Get all unexpanded fragments for the authorized user
+# 7. Get list of fragments by Authenticated GET to /v1/fragments
 GET http://localhost:8080/v1/fragments
 [BasicAuth]
 user1@email.com:password1
 
+# We expect to get back an HTTP 200
 HTTP/1.1 200
+
+# Assert that the fragments array contains the two ids we captured earlier
 [Asserts]
-# Ensure both fragment IDs are present in the list
 jsonpath "$.fragments[*]" includes {{fragment1_id}}
 jsonpath "$.fragments[*]" includes {{fragment2_id}}
 
-# 6. DELETE the first fragment
+# 8. DELETE the first fragment
 DELETE {{fragment1_url}}
 [BasicAuth]
 user1@email.com:password1
 
+# We expect to get back an HTTP 200
 HTTP/1.1 200
 
-# 7. Try to GET the first fragment (deleted)
+# 10. Try to GET the first fragment again using the url as an authorized user.
 GET {{fragment1_url}}
+
 [BasicAuth]
 user1@email.com:password1
 
+# We should get back an HTTP 1.1 404 response
 HTTP/1.1 404
 
-# 8. Get all unexpanded fragments again for the authorized user
+# 13. Get list of fragments by Authenticated GET to /v1/fragments
 GET http://localhost:8080/v1/fragments
 [BasicAuth]
 user1@email.com:password1
 
+# We expect to get back an HTTP 200
 HTTP/1.1 200
+
+# Assert that the fragments array contains the two ids we captured earlier
 [Asserts]
-# Ensure the deleted fragment is no longer in the list
 jsonpath "$.fragments[*]" != {{fragment1_id}}
-# Ensure the second fragment is still present
-jsonpath "$.fragments[*]" includes {{fragment2_id}}

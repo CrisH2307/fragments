@@ -49,6 +49,7 @@ async function readFragment(ownerId, id) {
       throw new Error(`Fragment with ID ${id} not found`);
     }
     logger.debug('READ FRAGMENT', data.Item);
+
     return data.Item;
   } catch (err) {
     logger.warn({ err, params }, 'error reading fragment from DynamoDB');

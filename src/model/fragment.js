@@ -49,10 +49,26 @@ class Fragment {
    * @returns Promise<Array<Fragment>>
    */
   static async byUser(ownerId, expand = false) {
-    logger.debug('Fetching fragments for user:', ownerId);
-    const fragments = await listFragments(ownerId, expand);
-    logger.debug('Fragments fetched:', fragments);
-    return fragments;
+    try {
+      // Validate ownerId
+      if (!ownerId || typeof ownerId !== 'string') {
+        throw new Error('Invalid or missing ownerId');
+      }
+
+      // Fetch the fragments for the user
+      logger.debug(`Fetching fragments for user: ${ownerId} with expand=${expand}`);
+      const fragments = await listFragments(ownerId, expand);
+
+      // Log the retrieved fragments for debugging
+      logger.debug(`Fragments fetched for user ${ownerId}:`, fragments);
+
+      // Return the retrieved fragments
+      return fragments;
+    } catch (error) {
+      // Log the error and rethrow it
+      logger.error(`Error fetching fragments for user ${ownerId}: ${error.message}`);
+      throw error; // Rethrow to allow higher-level error handling
+    }
   }
 
   /**

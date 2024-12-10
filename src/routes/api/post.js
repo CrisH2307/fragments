@@ -5,6 +5,12 @@ require('dotenv').config();
 const API_URL = process.env.API_URL || 'http://localhost:8080';
 
 module.exports = async (req, res) => {
+  logger.debug('Authenticated user:', req.user);
+  if (!req.user) {
+    logger.error('User not authenticated');
+    return res.status(401).json(createErrorResponse(401, 'Unauthorized'));
+  }
+
   if (Buffer.isBuffer(req.body)) {
     try {
       const fragment = new Fragment({
@@ -20,14 +26,7 @@ module.exports = async (req, res) => {
       logger.debug('Content-Type:', req.headers['content-type']);
       logger.debug('Size:', Buffer.byteLength(req.body));
 
-      logger.debug('Fragment details:', {
-        id: fragment.id,
-        ownerId: fragment.ownerId,
-        created: fragment.created,
-        updated: fragment.updated,
-        type: fragment.type,
-        size: fragment.size,
-      });
+      logger.debug('Fragment details:', fragment);
 
       res.setHeader('Location', `${API_URL}/v1/fragments/${fragment.id}`);
       // Set Content-Type exactly as expected in the test
@@ -45,6 +44,7 @@ module.exports = async (req, res) => {
         },
       });
     } catch (err) {
+      logger.error(err, 'POST FAILED');
       res.status(500).json(createErrorResponse(500, `Error creating fragment: ${err.message}`));
     }
   } else {

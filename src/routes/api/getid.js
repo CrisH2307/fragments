@@ -12,42 +12,54 @@ const getId = async (req, res) => {
   const ownerId = req.user;
   const [id, extension] = req.params.id.split('.');
 
-  logger.info({ id, ownerId, extension }, `Calling GET ${req.originalUrl}`);
+  logger.info({ id, ownerId, extension }, `Incoming GET request for fragment: ${req.originalUrl}`);
 
   try {
+    // Log request body, params, and headers for better traceability
+    logger.debug({ params: req.params, query: req.query, headers: req.headers }, 'Request details');
+
     const fragment = await Fragment.byId(ownerId, id);
-    logger.debug({ fragment }, 'Fragment was found');
+    logger.debug({ fragment }, 'Fragment fetched successfully');
 
     const data = await fragment.getData();
-    logger.debug('Fragment data has been retrieved');
+    logger.debug('Fragment data retrieved');
 
-    // if extension was included, attempt to convert data and then return it
+    // if extension is provided, convert the data
     if (extension) {
       const extensionType = getExtensionContentType(extension);
-      logger.info({ from: fragment.mimeType, to: extensionType }, 'Converting fragment');
+
+      if (!extensionType) {
+        const message = `Unsupported extension: ${extension}`;
+        const errorResponse = createErrorResponse(415, message);
+        logger.error({ errorResponse }, message);
+        return res.status(415).json(errorResponse);
+      }
+
+      logger.info(
+        { from: fragment.mimeType, to: extensionType },
+        'Attempting conversion of fragment'
+      );
 
       if (fragment.formats.includes(extensionType)) {
+        logger.info('Supported conversion format found');
         const convertedData = await convertData(data, fragment.mimeType, extension);
-
         res.setHeader('Content-Type', extensionType);
         res.status(200).send(convertedData);
       } else {
-        const message = `a ${fragment.mimeType} fragment cannot be return as a ${extension}`;
+        const message = `Fragment cannot be returned as ${extension}`;
         const errorResponse = createErrorResponse(415, message);
-
-        logger.error({ errorResponse }, 'Invalid operation');
+        logger.error({ errorResponse }, 'Invalid conversion attempt');
         res.status(415).json(errorResponse);
       }
-    }
-    // otherwise return raw fragment data with its type
-    else {
+    } else {
+      // if no extension, return raw data
       res.setHeader('Content-Type', fragment.type);
       res.status(200).send(data);
     }
   } catch (err) {
     const errorResponse = createErrorResponse(404, err.message);
-    logger.warn({ id, errorResponse }, 'Failed to retrieve fragment');
-    res.status(404).json(err.message);
+    logger.warn({ errorResponse, stack: err.stack }, 'Error retrieving fragment');
+    res.status(404).json(errorResponse);
   }
 };
 
