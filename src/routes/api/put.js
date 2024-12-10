@@ -1,40 +1,42 @@
 // src/routes/api/put.js
 
-const { createSuccessResponse, createErrorResponse } = require('../../response');
-// const express = require('express');
+const logger = require('../../logger');
 const { Fragment } = require('../../model/fragment');
-// const contentType = require('content-type');
-const API_URL = process.env.API_URL || 'http://localhost:8080';
-
-// const logger = require('../../logger');
+const { createSuccessResponse, createErrorResponse } = require('../../response');
 
 module.exports = async (req, res) => {
-  let fragment;
+  const id = req.params.id;
+  const ownerId = req.user;
+  const type = req.get('Content-Type');
+  const body = req.body;
+
+  logger.info({ id, ownerId, type }, `Calling PUT ${req.originalUrl}`);
+
   try {
-    fragment = new Fragment(await Fragment.byId(req.user, req.params.id));
-    // frag = await fragment.getData();
-    // res.setHeader('Content-Type', fragment.type);
-  } catch (e) {
-    return res.status(404).json(createErrorResponse('Fragment not found', e));
-  }
+    const fragment = await Fragment.byId(ownerId, id);
 
-  if (!Buffer.isBuffer(req.body)) {
-    res.status(415).json(createErrorResponse(415, 'Type error'));
-  } else {
-    try {
-      // frag = new Fragment({ ownerId: req.user, type: req.get('Content-Type') });
+    logger.debug({ fragment }, 'Fragment was found');
+
+    if (fragment.type === type) {
+      await fragment.setData(body);
       await fragment.save();
-      await fragment.setData(req.body);
-      res.set('Location', API_URL + '/v1/fragments/' + fragment.id);
-      res.set('Content-Type', fragment.type);
 
-      res.status(201).json(
-        createSuccessResponse({
-          fragment: fragment,
-        })
+      logger.debug({ fragment }, `The fragment has been updated successfully`);
+
+      const successResponse = createSuccessResponse({ fragment });
+      return res.status(200).json(successResponse);
+    } else {
+      const errorResponse = createErrorResponse(
+        415,
+        'Unsupported Media Type: Fragment type cannot be changed after creation'
       );
-    } catch (error) {
-      res.status(400).json(createErrorResponse(400, error));
+      logger.warn({ errorResponse }, 'Failed to update the fragment');
+
+      return res.status(415).json(errorResponse);
     }
+  } catch (err) {
+    const errorResponse = createErrorResponse(404, err.message);
+    logger.warn({ errorResponse }, 'Failed to update the fragment');
+    return res.status(404).json(errorResponse);
   }
 };
