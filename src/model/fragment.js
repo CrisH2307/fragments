@@ -110,9 +110,13 @@ class Fragment {
    * @returns Promise
    */
   save() {
-    logger.debug('Saving fragment:', this);
-    this.updated = new Date().toISOString();
-    return writeFragment(this);
+    try {
+      if (readFragment(this.ownerId, this.id) == undefined) throw 'No fragment found';
+      this.updated = new Date().toISOString();
+      return writeFragment(this);
+    } catch (error) {
+      return Promise.reject(new Error(error));
+    }
   }
 
   /**
@@ -130,14 +134,14 @@ class Fragment {
    * @returns Promise
    */
   async setData(data) {
-    if (!data) {
-      logger.error('No Buffer provided for fragment data');
-      throw new Error('No Buffer');
+    try {
+      if (readFragment(this.ownerId, this.id) == undefined) throw 'No fragment found';
+      this.updated = new Date().toISOString();
+      this.size = Buffer.from(data).length;
+      return writeFragmentData(this.ownerId, this.id, data);
+    } catch (error) {
+      return Promise.reject(new Error(error));
     }
-    logger.debug('Setting data for fragment:', this.id);
-    await this.save();
-    this.size = Buffer.byteLength(data);
-    return writeFragmentData(this.ownerId, this.id, data);
   }
 
   /**
